@@ -1,0 +1,232 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getAppsData, getAppById, getPlatformsArray } from '../lib/data';
+
+// Build Time 生成所有頁面
+export async function getStaticPaths() {
+  const { apps } = await getAppsData();
+  
+  return apps.map(app => ({
+    params: { appId: app.id },
+    props: { app }
+  }));
+}
+
+const { app } = Astro.props;
+const platforms = getPlatformsArray(app);
+---
+
+<BaseLayout 
+  title={`${app.displayName} - 下載 | Presentyourlove`}
+  description={`下載 ${app.displayName} v${app.version},支援多平台安裝`}
+  ogImage={`${import.meta.env.BASE_URL}assets/${app.id}-icon-192.png`}
+>
+  <article class="app-detail">
+    <div class="container">
+      <header class="app-header">
+        <img 
+          src={`${import.meta.env.BASE_URL}assets/${app.id}-icon-192.png`}
+          alt={`${app.name} Icon`}
+          width="120"
+          height="120"
+          class="app-icon"
+        />
+        <div class="app-info">
+          <h1>{app.displayName}</h1>
+          <p class="version">版本 {app.version}</p>
+          <p class="release-date">發布日期: {app.releaseDate}</p>
+        </div>
+      </header>
+      
+      <section class="platforms-section">
+        <h2>支援平台</h2>
+        <div class="platform-grid">
+          {platforms.map(platform => (
+            <div class="platform-card">
+              <h3>{platform.type}</h3>
+              <p class="platform-version">版本: {platform.version}</p>
+              {platform.minOS && <p class="platform-req">最低需求: {platform.minOS}</p>}
+              {platform.size && <p class="platform-size">大小: {platform.size}</p>}
+              {(platform.downloadUrl || platform.storeUrl || platform.url) && (
+                <a 
+                  href={platform.downloadUrl || platform.storeUrl || platform.url} 
+                  class="btn btn-primary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  立即下載
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+      
+      <section class="changelog-section">
+        <h2>更新記錄</h2>
+        {app.changelog.map(entry => (
+          <div class="changelog-entry">
+            <h3>v{entry.version} <span class="changelog-date">({entry.date})</span></h3>
+            <ul>
+              {entry.changes.map(change => (
+                <li>{change}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </section>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .app-detail {
+    padding: 140px 0 80px;
+    min-height: 100vh;
+  }
+  
+  .app-header {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    margin-bottom: 60px;
+    padding-bottom: 40px;
+    border-bottom: var(--glass-border);
+  }
+  
+  .app-icon {
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  }
+  
+  .app-info h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  
+  .version {
+    font-size: 1.1rem;
+    color: var(--accent-color);
+    font-weight: 600;
+  }
+  
+  .release-date {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-top: 4px;
+  }
+  
+  .platforms-section,
+  .changelog-section {
+    margin-bottom: 60px;
+  }
+  
+  .platforms-section h2,
+  .changelog-section h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 32px;
+  }
+  
+  .platform-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  
+  .platform-card {
+    background: var(--card-bg);
+    border: var(--glass-border);
+    backdrop-filter: blur(12px);
+    padding: 32px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+  }
+  
+  .platform-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 40px rgba(var(--accent-rgb), 0.2);
+    border-color: var(--accent-color);
+  }
+  
+  .platform-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    text-transform: capitalize;
+  }
+  
+  .platform-version,
+  .platform-req,
+  .platform-size {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+  
+  .platform-card .btn {
+    margin-top: 16px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .changelog-entry {
+    background: var(--card-bg);
+    border: var(--glass-border);
+    backdrop-filter: blur(12px);
+    padding: 32px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .changelog-entry h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--accent-color);
+  }
+  
+  .changelog-date {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 400;
+  }
+  
+  .changelog-entry ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .changelog-entry li {
+    padding: 8px 0;
+    padding-left: 24px;
+    position: relative;
+    color: var(--text-secondary);
+  }
+  
+  .changelog-entry li::before {
+    content: '•';
+    position: absolute;
+    left: 8px;
+    color: var(--accent-color);
+    font-weight: bold;
+  }
+  
+  @media (max-width: 768px) {
+    .app-header {
+      flex-direction: column;
+      text-align: center;
+      gap: 24px;
+    }
+    
+    .app-info h1 {
+      font-size: 2rem;
+    }
+    
+    .platforms-section h2,
+    .changelog-section h2 {
+      font-size: 1.5rem;
+    }
+  }
+</style>
