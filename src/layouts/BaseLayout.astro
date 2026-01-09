@@ -1,0 +1,65 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const { 
+  title, 
+  description = 'Presentyourlove 應用程式下載中心',
+  ogImage = '/assets/presentyourlove-logo-512.png'
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(ogImage, Astro.site);
+---
+
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <meta name="description" content={description}>
+  
+  <!-- SEO -->
+  <link rel="canonical" href={canonicalURL}>
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content={canonicalURL}>
+  <meta property="og:title" content={title}>
+  <meta property="og:description" content={description}>
+  <meta property="og:image" content={ogImageURL}>
+  
+  <!-- PWA -->
+  <link rel="manifest" href={`${import.meta.env.BASE_URL}manifest.json`}>
+  <meta name="theme-color" content="#0f172a">
+  
+  <!-- Icons -->
+  <link rel="icon" href={`${import.meta.env.BASE_URL}assets/presentyourlove-logo-32.png`} sizes="32x32">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="header-placeholder"></div>
+  
+  <main id="main-content">
+    <slot />
+  </main>
+  
+  <div id="footer-placeholder"></div>
+  
+  <script>
+    // Theme initialization
+    const theme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  </script>
+</body>
+</html>
