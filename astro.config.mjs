@@ -15,11 +15,5 @@ export default defineConfig({
     build: {
         assets: '_astro',
         inlineStylesheets: 'auto'
-    },
-
-    vite: {
-        build: {
-            cssMinify: 'lightningcss'
-        }
     }
 });
