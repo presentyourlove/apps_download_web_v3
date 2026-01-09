@@ -7,7 +7,7 @@ interface Props {
 }
 
 const { id, name, displayName, iconPath } = Astro.props;
-const detailUrl = `${import.meta.env.BASE_URL}${id}/`;
+const detailUrl = `${import.meta.env.BASE_URL}/${id}/`;
 ---
 
 <a href={detailUrl} class="app-card">
