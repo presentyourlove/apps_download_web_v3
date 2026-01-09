@@ -33,10 +33,13 @@ export interface AppsData {
 
 // 資料獲取函式 (Build Time)
 export async function getAppsData(): Promise<AppsData> {
-    const response = await fetch(
-        new URL('../../public/api/versions.json', import.meta.url)
-    );
-    return response.json();
+    // 在 SSG build 時,使用 fs 讀取檔案
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+
+    const filePath = path.join(process.cwd(), 'public', 'api', 'versions.json');
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(fileContent);
 }
 
 // 輔助函式:將 platforms 物件轉為陣列
